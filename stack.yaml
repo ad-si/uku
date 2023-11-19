@@ -1,0 +1,7 @@
+resolver: lts-21.20
+
+packages:
+  - .
+
+extra-deps:
+  - ilist-0.4.0.1

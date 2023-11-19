@@ -1,0 +1,24 @@
+name: uku
+version: 0.0.1.0
+synopsis: Display Ukulele fingering charts in the terminal
+description: Please see readme.md
+license: ISC
+author: Adrian Sieber
+
+default-extensions:
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - MultiWayIf
+
+executables:
+  uku:
+    main: Main.hs
+    source-dirs: src
+    ghc-options:
+      - -threaded
+    dependencies:
+      - base
+      - containers
+      - ilist
+      - protolude
+      - text

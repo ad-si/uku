@@ -1,0 +1,34 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           uku
+version:        0.0.1.0
+synopsis:       Display Ukulele fingering charts in the terminal
+description:    Please see readme.md
+author:         Adrian Sieber
+maintainer:     Adrian Sieber
+license:        ISC
+build-type:     Simple
+
+executable uku
+  main-is: Main.hs
+  other-modules:
+      GeneralTypes
+      Paths_uku
+  hs-source-dirs:
+      src
+  default-extensions:
+      NoImplicitPrelude
+      OverloadedStrings
+      MultiWayIf
+  ghc-options: -threaded
+  build-depends:
+      base
+    , containers
+    , ilist
+    , protolude
+    , text
+  default-language: Haskell2010
