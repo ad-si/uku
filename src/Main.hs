@@ -34,7 +34,7 @@ import Protolude as P (
 
 import Data.List.Index (imap, setAt)
 import Data.Map.Strict as Map (Map, fromList, lookup)
-import Data.Text as Text (Text, intercalate, pack)
+import Data.Text as Text (Text, intercalate, pack, toLower)
 
 import GeneralTypes (
   Interval (..),
@@ -141,7 +141,7 @@ chordToPlayedInsts chord instrument =
     maybeInst = do
       frettings <-
         archaicToFretting
-          & Map.lookup (mapChordToHarmonicEquivalent chord)
+          & Map.lookup (chord & toLower & mapChordToHarmonicEquivalent)
       pure $ fmap instrument frettings
     errorMessage =
       "There is no fretting available for the specified chord"
