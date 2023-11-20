@@ -1,10 +1,40 @@
 module Main where
 
-import Protolude as P
+import Protolude as P (
+  Applicative (pure),
+  Bounded,
+  Either (..),
+  Enum (fromEnum),
+  Eq (..),
+  Foldable (fold, foldr, length, maximum),
+  Functor (fmap),
+  IO,
+  Int,
+  Map,
+  Num ((+), (-)),
+  Ord,
+  Print (putStr),
+  Semigroup ((<>)),
+  Show,
+  Text,
+  Traversable (mapM),
+  die,
+  getArgs,
+  intercalate,
+  intersperse,
+  maybeToEither,
+  otherwise,
+  replicate,
+  traceShowId,
+  transpose,
+  ($),
+  (&),
+  (<$>),
+ )
 
 import Data.List.Index (imap, setAt)
-import Data.Map.Strict as Map
-import Data.Text as Text
+import Data.Map.Strict as Map (Map, fromList, lookup)
+import Data.Text as Text (Text, intercalate, pack)
 
 import GeneralTypes (
   Interval (..),
@@ -85,13 +115,33 @@ ukulele :: Instrument
 ukulele =
   PlayedInst [I07, I00, I04, I09] M34
 
+-- TODO: Remove duplication
+mapChordToHarmonicEquivalent :: Text -> Text
+mapChordToHarmonicEquivalent chord = case chord of
+  "ab" -> "g#"
+  "bb" -> "a#"
+  "db" -> "c#"
+  "eb" -> "d#"
+  "gb" -> "f#"
+  "abm" -> "g#m"
+  "bbm" -> "a#m"
+  "dbm" -> "c#m"
+  "ebm" -> "d#m"
+  "gbm" -> "f#m"
+  "ab7" -> "g#7"
+  "bb7" -> "a#7"
+  "db7" -> "c#7"
+  "eb7" -> "d#7"
+  "gb7" -> "f#7"
+  _ -> chord
 
-chordToPlayedInsts ::
-  Text -> Instrument -> Either Text [PlayedInstrument]
+chordToPlayedInsts :: Text -> Instrument -> Either Text [PlayedInstrument]
 chordToPlayedInsts chord instrument =
   let
     maybeInst = do
-      frettings <- Map.lookup chord archaicToFretting
+      frettings <-
+        archaicToFretting
+          & Map.lookup (mapChordToHarmonicEquivalent chord)
       pure $ fmap instrument frettings
     errorMessage =
       "There is no fretting available for the specified chord"
