@@ -72,7 +72,7 @@ data Pick
 pickToInt :: Pick -> Int
 pickToInt fretPosition =
   case fretPosition of
-    Pick fret _ -> (fromEnum fret) + 1
+    Pick fret _ -> fromEnum fret + 1
     _ -> 0
 
 type Fretting = [[Pick]]
@@ -170,11 +170,10 @@ getString :: Int -> Int -> Int -> [Pick] -> [Text]
 getString numberOfFrets numOfStrings stringIndex strPick =
   let
     openString =
-      [ ( if
-            | stringIndex == 0 -> "╒"
-            | stringIndex == (numOfStrings - 1) -> "╕"
-            | otherwise -> "╤"
-        )
+      [ if
+          | stringIndex == 0 -> "╒"
+          | stringIndex == (numOfStrings - 1) -> "╕"
+          | otherwise -> "╤"
       ]
         <> P.replicate (numberOfFrets + 1) "│"
    in
@@ -183,7 +182,7 @@ getString numberOfFrets numOfStrings stringIndex strPick =
 showFretting :: Fretting -> Text
 showFretting fretting =
   let
-    maxPos = P.maximum $ fmap pickToInt $ fold fretting
+    maxPos = P.maximum (pickToInt <$> fold fretting)
    in
     fretting
       & imap (getString maxPos $ P.length fretting)
@@ -223,12 +222,8 @@ archaicToFretting =
           ]
         ]
       )
-    ,
-      ( "am"
-      ,
-        [ [[Pick F2 Middle], [Open], [Open], [Open]]
-        ]
-      )
+    , ("am", [[[Pick F2 Middle], [Open], [Open], [Open]]])
+    , ("a7", [[[Open], [Pick F1 Index], [Open], [Open]]])
     ,
       ( "a#"
       ,
@@ -246,6 +241,17 @@ archaicToFretting =
         [
           [ [Pick F1 Index, Pick F3 Ring]
           , [Pick F1 Index]
+          , [Pick F1 Index]
+          , [Pick F1 Index]
+          ]
+        ]
+      )
+    ,
+      ( "a#7"
+      ,
+        [
+          [ [Pick F1 Index]
+          , [Pick F1 Index, Pick F2 Middle]
           , [Pick F1 Index]
           , [Pick F1 Index]
           ]
@@ -273,8 +279,10 @@ archaicToFretting =
           ]
         ]
       )
+    , ("b7", [[[Pick F2 Index], [Pick F2 Index], [Pick F2 Index], [Open]]])
     , ("c", [[[Open], [Open], [Open], [Pick F3 Ring]]])
     , ("cm", [[[Open], [Pick F3 Index], [Pick F3 Index], [Pick F3 Index]]])
+    , ("c7", [[[Open], [Open], [Open], [Pick F1 Index]]])
     ,
       ( "c#"
       ,
@@ -287,8 +295,30 @@ archaicToFretting =
         ]
       )
     , ("c#m", [[[Pick F1 Index], [Pick F1 Index], [Open], [Open]]])
+    ,
+      ( "c#7"
+      ,
+        [
+          [ [Pick F1 Index]
+          , [Pick F1 Index]
+          , [Pick F1 Index]
+          , [Pick F1 Index, Pick F2 Middle]
+          ]
+        ]
+      )
     , ("d", [[[Pick F2 Index], [Pick F2 Middle], [Pick F2 Middle], [Open]]])
     , ("dm", [[[Pick F2 Middle], [Pick F2 Ring], [Pick F1 Index], [Open]]])
+    ,
+      ( "d7"
+      ,
+        [
+          [ [Pick F2 Index]
+          , [Pick F2 Index]
+          , [Pick F2 Index]
+          , [Pick F2 Index, Pick F3 Middle]
+          ]
+        ]
+      )
     , ("d#", [[[Open], [Pick F3 Ring], [Pick F3 Pinky], [Pick F1 Index]]])
     ,
       ( "d#m"
@@ -296,10 +326,39 @@ archaicToFretting =
         [ [[Pick F3 Ring], [Pick F3 Pinky], [Pick F2 Middle], [Pick F1 Index]]
         ]
       )
+    ,
+      ( "d#7"
+      ,
+        [
+          [ [Pick F3 Index]
+          , [Pick F3 Index]
+          , [Pick F3 Index]
+          , [Pick F3 Index, Pick F4 Middle]
+          ]
+        ]
+      )
     , ("e", [[[Pick F1 Index], [Pick F4 Pinky], [Open], [Pick F2 Middle]]])
     , ("em", [[[Open], [Pick F4 Ring], [Pick F3 Middle], [Pick F2 Index]]])
+    , ("e7", [[[Pick F1 Index], [Pick F2 Middle], [Open], [Pick F2 Pinky]]])
     , ("f", [[[Pick F2 Middle], [Open], [Pick F1 Index], [Open]]])
-    , ("fm", [[[Pick F1 Index], [Open], [Pick F1 Middle], [Pick F3 Pinky]]])
+    , ("fm", [[[Pick F1 Index], [Open], [Pick F1 Middle], [Pick F3 Ring]]])
+    ,
+      ( "f7"
+      ,
+        [
+          [ [Pick F2 Middle]
+          , [Pick F3 Ring]
+          , [Pick F1 Index]
+          , [Pick F4 Pinky]
+          ]
+        ,
+          [ [Pick F5 Index]
+          , [Pick F5 Index]
+          , [Pick F5 Index]
+          , [Pick F5 Index, Pick F6 Middle]
+          ]
+        ]
+      )
     ,
       ( "f#"
       ,
@@ -312,8 +371,20 @@ archaicToFretting =
         ]
       )
     , ("f#m", [[[Pick F2 Middle], [Pick F1 Index], [Pick F2 Ring], [Open]]])
+    ,
+      ( "f#7"
+      ,
+        [
+          [ [Pick F3 Middle]
+          , [Pick F4 Ring]
+          , [Pick F2 Index]
+          , [Pick F4 Pinky]
+          ]
+        ]
+      )
     , ("g", [[[Open], [Pick F2 Index], [Pick F3 Ring], [Pick F2 Middle]]])
     , ("gm", [[[Open], [Pick F2 Middle], [Pick F3 Ring], [Pick F1 Index]]])
+    , ("g7", [[[Open], [Pick F2 Middle], [Pick F1 Index], [Pick F2 Ring]]])
     ,
       ( "g#"
       ,
@@ -331,6 +402,17 @@ archaicToFretting =
         [ [[Pick F4 Ring], [Pick F3 Middle], [Pick F4 Pinky], [Pick F2 Index]]
         ]
       )
+    ,
+      ( "g#7"
+      ,
+        [
+          [ [Pick F1 Index]
+          , [Pick F3 Ring]
+          , [Pick F2 Middle]
+          , [Pick F3 Pinky]
+          ]
+        ]
+      )
     ]
 
 main :: IO ()
@@ -338,7 +420,7 @@ main = do
   chords <- getArgs
   case chords of
     [] -> die "Usage: uku <chord>"
-    [chord] -> case (getAnsiArts $ pack chord) of
+    [chord] -> case getAnsiArts $ pack chord of
       Left error -> die error
       Right ansiArt -> putStr $ ansiArt <> "\n"
-    _ -> die "Supportrs only 1 chord per call"
+    _ -> die "Supports only 1 chord per invocation"
