@@ -85,63 +85,6 @@ ukulele :: Instrument
 ukulele =
   PlayedInst [I07, I00, I04, I09] M34
 
-gMajor :: PlayedInstrument
-gMajor =
-  ukulele
-    [ [Open]
-    , [Pick F2 Index]
-    , [Pick F3 Ring]
-    , [Pick F2 Middle]
-    ]
-
---     G
---  ╒═╤═╤═╕
---  │_│_│_│
---  │_I_│_M
---  │_│_R_│
---  │_│_│_│
-
-bMajor :: PlayedInstrument
-bMajor =
-  ukulele
-    [
-      [ Pick F2 Index
-      , Pick F4 Ring
-      ]
-    ,
-      [ Pick F2 Index
-      , Pick F3 Middle
-      ]
-    , [Pick F2 Index]
-    , [Pick F2 Index]
-    ]
-
---     G
---  ╒═╤═╤═╕
---  │_│_│_│
---  I_I_I_I
---  │_M_│_│
---  R_│_│_│
---  │_│_│_│
-
-archaicToFrettingA :: Map Text [Fretting]
-archaicToFrettingA =
-  Map.fromList
-    [
-      ( "a"
-      ,
-        [ [[Pick F2 Middle], [Pick F1 Index], [Open], [Open]]
-        , [[Pick F2 Middle], [Pick F1 Index], [Open], [Pick F4 Pinky]]
-        ]
-      )
-    ,
-      ( "am"
-      ,
-        [ [[Pick F2 Middle], [Open], [Open], [Open]]
-        , [[Pick F2 Middle], [Open], [Open], [Pick F3 AnyFinger]]
-        ]
-      )
-    ]
 
 chordToPlayedInsts ::
   Text -> Instrument -> Either Text [PlayedInstrument]
