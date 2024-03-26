@@ -24,7 +24,9 @@ for more information.
 - [Cherchord] - Find chord fingerings for any stringed instrument.
 - [Chords DB] - Database of string instruments chords.
 - [Harmony] - A Haskell library for musical scales and notes.
+- [Tab] - CLI tool to render tabs for music instruments.
 
 [Cherchord]: https://github.com/DataKinds/cherchord
-[Harmony]: https://github.com/Kah0ona/harmony-haskell
 [Chords DB]: https://github.com/tombatossals/chords-db
+[Harmony]: https://github.com/Kah0ona/harmony-haskell
+[Tab]: https://github.com/zserge/tab
