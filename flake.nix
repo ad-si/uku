@@ -21,7 +21,11 @@
             bash
             coreutils
             gnumake
-            stack
+            haskellPackages.cabal-fmt
+            haskellPackages.cabal-install
+            haskellPackages.fourmolu
+            haskellPackages.haskell-language-server
+            haskellPackages.stack
           ];
         };
         formatter = pkgs.nixfmt-tree; # Format this file with `nix fmt`

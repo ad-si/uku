@@ -1,5 +1,7 @@
 resolver: lts-23.18
 
+system-ghc: true
+
 packages:
   - .
 
