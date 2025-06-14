@@ -1,4 +1,4 @@
-module GeneralTypes (
+module Uku.GeneralTypes (
   MidiNote (..),
   Interval (..),
 )
@@ -6,6 +6,8 @@ where
 
 import Protolude (Eq, Ord, Show)
 
+
+-- | A type representing a MIDI note.
 data MidiNote
   = M00
   | M01
@@ -136,6 +138,7 @@ data MidiNote
   | MX6
   | MX7
   deriving (Eq, Ord, Show)
+
 
 data Interval
   = I00

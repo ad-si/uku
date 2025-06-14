@@ -5,20 +5,37 @@ description: Please see readme.md
 license: ISC
 author: Adrian Sieber
 
+language: GHC2021
+
 default-extensions:
   - NoImplicitPrelude
   - OverloadedStrings
   - MultiWayIf
 
+ghc-options:
+  - -threaded
+  - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wno-orphans
+  - -Wredundant-constraints
+  - -Wunused-packages
+
+dependencies:
+  - base >= 4.18.2 && < 4.20
+  - protolude >= 0.3.4 && < 0.4
+  - text >= 2.0.2 && < 2.2
+
+library:
+  source-dirs: src
+  dependencies:
+    - containers >= 0.6.7 && < 0.7
+    - ilist >= 0.4.0 && < 0.5
+
 executables:
   uku:
+    source-dirs: app
     main: Main.hs
-    source-dirs: src
-    ghc-options:
-      - -threaded
     dependencies:
-      - base
-      - containers
-      - ilist
-      - protolude
-      - text
+      - uku

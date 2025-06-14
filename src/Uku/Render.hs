@@ -1,4 +1,10 @@
-module Main where
+{-|
+Description : Rendering module for Ukulele fingering charts.
+
+This module provides functionality
+to render Ukulele fingering charts as ANSI art.
+-}
+module Uku.Render where
 
 import Protolude as P (
   Applicative (pure),
@@ -8,24 +14,19 @@ import Protolude as P (
   Eq (..),
   Foldable (fold, foldr, length, maximum),
   Functor (fmap),
-  IO,
   Int,
   Map,
   Num ((+), (-)),
   Ord,
-  Print (putStr),
   Semigroup ((<>)),
   Show,
   Text,
   Traversable (mapM),
-  die,
-  getArgs,
   intercalate,
   intersperse,
   maybeToEither,
   otherwise,
   replicate,
-  traceShowId,
   transpose,
   ($),
   (&),
@@ -33,27 +34,30 @@ import Protolude as P (
  )
 
 import Data.List.Index (imap, setAt)
-import Data.Map.Strict as Map (Map, fromList, lookup)
-import Data.Text as Text (Text, intercalate, pack, toLower)
+import Data.Map.Strict as Map (fromList, lookup)
+import Data.Text as Text (intercalate, toLower)
 
-import GeneralTypes (
+import Uku.GeneralTypes (
   Interval (..),
   MidiNote (..),
  )
 
+
 data Finger = Thumb | Index | Middle | Ring | Pinky | AnyFinger
   deriving (Eq, Ord, Show)
+
 
 fingerToText :: Finger -> Text
 fingerToText finger =
   let colorize text = "\x1b[31m" <> text <> "\x1b[0m"
-   in colorize $ case finger of
+  in  colorize $ case finger of
         Thumb -> "T"
         Index -> "I"
         Middle -> "M"
         Ring -> "R"
         Pinky -> "P"
         AnyFinger -> "●"
+
 
 data FretPosition
   = F1
@@ -93,11 +97,13 @@ data FretPosition
   | FZ
   deriving (Bounded, Enum, Eq, Ord, Show)
 
+
 data Pick
   = Mute
   | Open
   | Pick FretPosition Finger
   deriving (Eq, Ord, Show)
+
 
 pickToInt :: Pick -> Int
 pickToInt fretPosition =
@@ -105,15 +111,19 @@ pickToInt fretPosition =
     Pick fret _ -> fromEnum fret + 1
     _ -> 0
 
+
 type Fretting = [[Pick]]
+
 
 type InstStrings = [Interval]
 data PlayedInstrument = PlayedInst InstStrings MidiNote Fretting
 type Instrument = Fretting -> PlayedInstrument
 
+
 ukulele :: Instrument
 ukulele =
   PlayedInst [I07, I00, I04, I09] M34
+
 
 -- TODO: Remove duplication
 mapChordToHarmonicEquivalent :: Text -> Text
@@ -135,6 +145,7 @@ mapChordToHarmonicEquivalent chord = case chord of
   "gb7" -> "f#7"
   _ -> chord
 
+
 chordToPlayedInsts :: Text -> Instrument -> Either Text [PlayedInstrument]
 chordToPlayedInsts chord instrument =
   let
@@ -145,8 +156,9 @@ chordToPlayedInsts chord instrument =
       pure $ fmap instrument frettings
     errorMessage =
       "There is no fretting available for the specified chord"
-   in
+  in
     maybeToEither errorMessage maybeInst
+
 
 putPickOnString :: Pick -> [Text] -> [Text]
 putPickOnString pick stringParts =
@@ -159,6 +171,7 @@ putPickOnString pick stringParts =
         (fingerToText finger)
         stringParts
 
+
 getString :: Int -> Int -> Int -> [Pick] -> [Text]
 getString numberOfFrets numOfStrings stringIndex strPick =
   let
@@ -169,14 +182,15 @@ getString numberOfFrets numOfStrings stringIndex strPick =
           | otherwise -> "╤"
       ]
         <> P.replicate (numberOfFrets + 1) "│"
-   in
+  in
     P.foldr putPickOnString openString strPick
+
 
 showFretting :: Fretting -> Text
 showFretting fretting =
   let
     maxPos = P.maximum (pickToInt <$> fold fretting)
-   in
+  in
     fretting
       & imap (getString maxPos $ P.length fretting)
       & P.intersperse (["═"] <> P.replicate (maxPos + 1) "_")
@@ -185,13 +199,15 @@ showFretting fretting =
       & fold
       & (<> "\n")
 
+
 showPlayedInst :: PlayedInstrument -> Either Text Text
 showPlayedInst (PlayedInst strings _ fretting)
   | P.length strings /= P.length fretting =
       Left "Number of strings and picks in fretting do not match"
   | otherwise =
-      Right
-        $ showFretting fretting
+      Right $
+        showFretting fretting
+
 
 getAnsiArts :: Text -> Either Text Text
 getAnsiArts chord = do
@@ -199,6 +215,7 @@ getAnsiArts chord = do
   fmap
     (Text.intercalate "\n")
     (mapM showPlayedInst playedInsts)
+
 
 archaicToFretting :: Map Text [Fretting]
 archaicToFretting =
@@ -407,13 +424,3 @@ archaicToFretting =
         ]
       )
     ]
-
-main :: IO ()
-main = do
-  chords <- getArgs
-  case chords of
-    [] -> die "Usage: uku <chord>"
-    [chord] -> case getAnsiArts $ pack chord of
-      Left error -> die error
-      Right ansiArt -> putStr $ ansiArt <> "\n"
-    _ -> die "Supports only 1 chord per invocation"
