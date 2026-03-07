@@ -24,8 +24,12 @@ release: docs
 	stack upload --documentation .
 
 
+.PHONY: format
+format:
+	fourmolu -i src/**/*.hs app/*.hs
+
+
 .PHONY: clean
 clean:
-	stack clean
-	rm -rf .stack-work
+	stack clean --full
 	rm -rf dist-newstyle
