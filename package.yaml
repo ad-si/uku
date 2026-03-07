@@ -23,14 +23,14 @@ ghc-options:
   - -Wunused-packages
 
 dependencies:
-  - base >= 4.18.2 && < 4.20
+  - base >= 4.18.2 && < 4.21
   - protolude >= 0.3.4 && < 0.4
   - text >= 2.0.2 && < 2.2
 
 library:
   source-dirs: src
   dependencies:
-    - containers >= 0.6.7 && < 0.7
+    - containers >= 0.6.7 && < 0.8
     - ilist >= 0.4.0 && < 0.5
 
 executables:
