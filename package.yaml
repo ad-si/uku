@@ -21,6 +21,7 @@ ghc-options:
   - -Wno-orphans
   - -Wredundant-constraints
   - -Wunused-packages
+  - -optP-Wno-nonportable-include-path
 
 dependencies:
   - base >= 4.18.2 && < 4.21
