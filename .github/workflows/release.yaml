@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: uku-linux-x86_64
+          - os: ubuntu-24.04-arm
+            artifact: uku-linux-aarch64
+          - os: macos-latest
+            artifact: uku-macos-aarch64
+          - os: macos-26-intel
+            artifact: uku-macos-x86_64
+          - os: windows-latest
+            artifact: uku-windows-x86_64.exe
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: haskell-actions/setup@v2
+        with:
+          enable-stack: true
+          stack-no-global: true
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.stack
+            .stack-work
+          key: ${{ runner.os }}-${{ runner.arch }}-stack-${{ hashFiles('stack.yaml.lock', 'package.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-stack-
+
+      - name: Build
+        run: stack build
+
+      - name: Copy binary
+        run: |
+          mkdir -p out
+          stack --local-bin-path out install
+        shell: bash
+
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: out/uku${{ runner.os == 'Windows' && '.exe' || '' }}
+          asset_name: ${{ matrix.artifact }}
+          tag: ${{ github.ref }}
