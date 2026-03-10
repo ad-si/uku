@@ -102,8 +102,12 @@ combineArts arts = do
 main :: IO ()
 main = do
   chords <- getArgs
+  let usageText = "Usage: uku <chord> [<chord> ...]"
   case chords of
-    [] -> die "Usage: uku <chord> [<chord> ...]"
+    [] -> die usageText
+    ["help"] -> die usageText
+    ["--help"] -> die usageText
+    ["-h"] -> die usageText
     cs -> do
       arts <- mapM toArt cs
       putStr $ combineArts arts
