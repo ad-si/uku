@@ -5,7 +5,7 @@ Display ukulele fingering charts in your terminal.
 -}
 module Main where
 
-import Protolude as P (
+import Protolude (
   Applicative (pure),
   Char,
   Either (..),
@@ -16,13 +16,6 @@ import Protolude as P (
   Semigroup ((<>)),
   die,
   getArgs,
-  length,
-  mapM,
-  maximum,
-  replicate,
-  toUpper,
-  transpose,
-  zipWith,
   ($),
   (&),
   (+),
@@ -31,6 +24,7 @@ import Protolude as P (
   (<$>),
   (<&>),
  )
+import Protolude qualified as P
 
 import Data.Text qualified as Text (
   Text,
@@ -56,7 +50,7 @@ toArt raw = do
 -- | Capitalize the first letter only (A, B♭, G#m, …)
 capitalizeChord :: [Char] -> [Char]
 capitalizeChord [] = []
-capitalizeChord (x : xs) = toUpper x : xs
+capitalizeChord (x : xs) = P.toUpper x : xs
 
 
 -- | Visible length (ignores "\ESC[ … m" sequences).
@@ -109,5 +103,5 @@ main = do
     ["--help"] -> die usageText
     ["-h"] -> die usageText
     cs -> do
-      arts <- mapM toArt cs
+      arts <- P.mapM toArt cs
       putStr $ combineArts arts
