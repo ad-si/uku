@@ -6,13 +6,12 @@ to render Ukulele fingering charts as ANSI art.
 -}
 module Uku.Render where
 
-import Protolude as P (
+import Protolude (
   Applicative (pure),
   Bounded,
   Either (..),
   Enum (fromEnum),
   Eq (..),
-  Foldable (fold, foldr, length, maximum),
   Functor (fmap),
   Int,
   Map,
@@ -22,16 +21,11 @@ import Protolude as P (
   Show,
   Text,
   Traversable (mapM),
-  intercalate,
-  intersperse,
-  maybeToEither,
-  otherwise,
-  replicate,
-  transpose,
   ($),
   (&),
   (<$>),
  )
+import Protolude qualified as P
 
 import Data.List.Index (imap, setAt)
 import Data.Map.Strict as Map (fromList, lookup)
@@ -157,7 +151,7 @@ chordToPlayedInsts chord instrument =
     errorMessage =
       "There is no fretting available for the specified chord"
   in
-    maybeToEither errorMessage maybeInst
+    P.maybeToEither errorMessage maybeInst
 
 
 putPickOnString :: Pick -> [Text] -> [Text]
@@ -179,7 +173,7 @@ getString numberOfFrets numOfStrings stringIndex strPick =
       [ if
           | stringIndex == 0 -> "╒"
           | stringIndex == (numOfStrings - 1) -> "╕"
-          | otherwise -> "╤"
+          | P.otherwise -> "╤"
       ]
         <> P.replicate (numberOfFrets + 1) "│"
   in
@@ -189,14 +183,14 @@ getString numberOfFrets numOfStrings stringIndex strPick =
 showFretting :: Fretting -> Text
 showFretting fretting =
   let
-    maxPos = P.maximum (pickToInt <$> fold fretting)
+    maxPos = P.maximum (pickToInt <$> P.fold fretting)
   in
     fretting
       & imap (getString maxPos $ P.length fretting)
       & P.intersperse (["═"] <> P.replicate (maxPos + 1) "_")
       & P.transpose
       & P.intercalate ["\n"]
-      & fold
+      & P.fold
       & (<> "\n")
 
 
@@ -204,7 +198,7 @@ showPlayedInst :: PlayedInstrument -> Either Text Text
 showPlayedInst (PlayedInst strings _ fretting)
   | P.length strings /= P.length fretting =
       Left "Number of strings and picks in fretting do not match"
-  | otherwise =
+  | P.otherwise =
       Right $
         showFretting fretting
 
