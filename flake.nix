@@ -21,10 +21,14 @@
             bash
             coreutils
             gnumake
+            haskell.compiler.ghc910
             haskellPackages.cabal-fmt
             haskellPackages.cabal-install
             haskellPackages.fourmolu
-            haskellPackages.haskell-language-server
+            (pkgs.haskell-language-server.override {
+              supportedGhcVersions = [ "9103" ];
+            })
+            haskellPackages.hlint
             haskellPackages.stack
           ];
         };
