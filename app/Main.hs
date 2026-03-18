@@ -26,16 +26,14 @@ import Protolude (
  )
 import Protolude qualified as P
 
-import Data.Text qualified as Text (
-  Text,
-  intercalate,
-  lines,
-  pack,
-  replicate,
-  unlines,
-  unpack,
- )
+import Data.Text qualified as Text
 
+import Uku.GeneralTypes (
+  addIntervalToKey,
+  archaicToKey,
+  keyToText,
+  nashvilleDegreeToInterval,
+ )
 import Uku.Render (getAnsiArts)
 
 
@@ -96,12 +94,38 @@ combineArts arts = do
 main :: IO ()
 main = do
   chords <- getArgs
-  let usageText = "Usage: uku <chord> [<chord> ...]"
+  let usageText =
+        "Usage: uku <chord> [<chord> ...]\n\
+        \       uku nash <key> <degree> [<degree> ...]\n\
+        \\n\
+        \Display ukulele fingering charts in your terminal.\n\
+        \\n\
+        \Subcommands:\n\
+        \  nash    Convert Nashville Number System degrees to chords.\n\
+        \          <key> is a root note (e.g. C, Bb, F#).\n\
+        \          <degree> is a scale degree from 1 to 7."
   case chords of
     [] -> die usageText
     ["help"] -> die usageText
     ["--help"] -> die usageText
     ["-h"] -> die usageText
+    "nash" : keyText : numbers -> do
+      let result = do
+            numbersInt <-
+              P.maybeToEither "ERROR: All numbers must be valid integers" $
+                P.mapM (P.readMaybe @Int) numbers
+            key <- archaicToKey $ Text.pack keyText
+            intervals <-
+              P.maybeToEither "ERROR: Nashville numbers must be between 1 and 7" $
+                P.mapM nashvilleDegreeToInterval numbersInt
+            pure $
+              intervals
+                <&> (\interval -> Text.unpack $ keyToText $ addIntervalToKey key interval)
+      case result of
+        Left errMsg -> die errMsg
+        Right chordNames -> do
+          arts <- P.mapM toArt chordNames
+          putStr $ combineArts arts
     cs -> do
       arts <- P.mapM toArt cs
       putStr $ combineArts arts

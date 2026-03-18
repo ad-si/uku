@@ -1,13 +1,46 @@
 module Uku.GeneralTypes (
   MidiNote (..),
   Interval (..),
+  Key (..),
+  archaicToMidiNote,
+  archaicToKey,
+  keyToText,
+  addInterval,
+  addIntervalToKey,
+  nashvilleDegreeToInterval,
 )
 where
 
-import Protolude (Eq, Ord, Show)
+import Protolude (
+  Char,
+  Either (..),
+  Enum (fromEnum, toEnum),
+  Eq,
+  Int,
+  Maybe (..),
+  Ord,
+  Show,
+  Text,
+  mod,
+  show,
+  toLower,
+  ($),
+  (&&),
+  (*),
+  (+),
+  (-),
+  (<=),
+  (<>),
+  (>=),
+ )
+import Protolude qualified as P
+
+import Data.Text qualified as Text
 
 
--- | A type representing a MIDI note.
+{-| A type representing a MIDI note.
+| MIDI notes range from 0 (C-1) to 127 (G9).
+-}
 data MidiNote
   = M00
   | M01
@@ -137,7 +170,7 @@ data MidiNote
   | MX5
   | MX6
   | MX7
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Enum)
 
 
 data Interval
@@ -269,4 +302,117 @@ data Interval
   | IX5
   | IX6
   | IX7
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Enum)
+
+
+addInterval :: MidiNote -> Interval -> MidiNote
+addInterval midiNote interval =
+  let
+    midiInt = P.fromEnum midiNote
+    intervalInt = P.fromEnum interval
+  in
+    P.toEnum (midiInt + intervalInt)
+
+
+data Key
+  = K0
+  | K1
+  | K2
+  | K3
+  | K4
+  | K5
+  | K6
+  | K7
+  | K8
+  | K9
+  | KX
+  | KE
+  deriving (Eq, Ord, Show, Enum)
+
+
+addIntervalToKey :: Key -> Interval -> Key
+addIntervalToKey key interval =
+  let
+    keyInt = P.fromEnum key
+    intervalInt = P.fromEnum interval
+  in
+    P.toEnum $ (keyInt + intervalInt) `P.mod` 12
+
+
+parseNote :: Char -> [Char] -> Either Text (Int, [Char])
+parseNote c rest = do
+  b <- case toLower c of
+    'c' -> Right 0
+    'd' -> Right 2
+    'e' -> Right 4
+    'f' -> Right 5
+    'g' -> Right 7
+    'a' -> Right 9
+    'b' -> Right 11
+    _ -> Left $ "Invalid note letter: " <> Text.singleton c
+  case rest of
+    ('#' : r) -> Right (b + 1, r)
+    ('b' : r) -> Right (b - 1, r)
+    r -> Right (b, r)
+
+
+keyToText :: Key -> Text
+keyToText k = case k of
+  K0 -> "c"
+  K1 -> "c#"
+  K2 -> "d"
+  K3 -> "eb"
+  K4 -> "e"
+  K5 -> "f"
+  K6 -> "f#"
+  K7 -> "g"
+  K8 -> "ab"
+  K9 -> "a"
+  KX -> "bb"
+  KE -> "b"
+
+
+nashvilleDegreeToInterval :: Int -> Maybe Interval
+nashvilleDegreeToInterval deg = case deg of
+  1 -> Just I00
+  2 -> Just I02
+  3 -> Just I04
+  4 -> Just I05
+  5 -> Just I07
+  6 -> Just I09
+  7 -> Just I0E
+  _ -> Nothing
+
+
+-- | Convert a Western note name (e.g. "C", "A#", "Bb") to a Key.
+archaicToKey :: Text -> Either Text Key
+archaicToKey txt = do
+  (c, rest) <- case Text.unpack txt of
+    [] -> Left "Empty note name"
+    (c : rest) -> Right (c, rest)
+  (semitone, _) <- parseNote c rest
+  Right $ toEnum (semitone `mod` 12)
+
+
+{-| Convert a Western note name (e.g. "C4", "A#3", "Bb5") to a MidiNote.
+Octave -1 corresponds to MIDI 0 (C-1 = 0).
+-}
+archaicToMidiNote :: Text -> Either Text MidiNote
+archaicToMidiNote txt =
+  let
+    parseOctave :: [Char] -> Either Text Int
+    parseOctave s = case s of
+      [d] | d >= '0' && d <= '9' -> Right (fromEnum d - fromEnum '0')
+      '-' : [d] | d >= '0' && d <= '9' -> Right (-(fromEnum d - fromEnum '0'))
+      _ -> Left $ "Invalid octave: " <> Text.pack s
+  in
+    do
+      (c, rest) <- case Text.unpack txt of
+        [] -> Left "Empty note name"
+        (c : rest) -> Right (c, rest)
+      (semitone, octaveStr) <- parseNote c rest
+      octave <- parseOctave octaveStr
+      let midi = (octave + 1) * 12 + semitone
+      if midi >= 0 && midi <= 127
+        then Right $ toEnum midi
+        else Left $ "MIDI note out of range: " <> show midi
